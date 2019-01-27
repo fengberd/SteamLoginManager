@@ -39,12 +39,14 @@
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.textBox4 = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.textBox5 = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(185, 151);
+            this.button1.Location = new System.Drawing.Point(185, 178);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(83, 23);
             this.button1.TabIndex = 0;
@@ -54,9 +56,9 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(76, 12);
+            this.textBox1.Location = new System.Drawing.Point(77, 12);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(192, 21);
+            this.textBox1.Size = new System.Drawing.Size(191, 21);
             this.textBox1.TabIndex = 1;
             this.textBox1.Leave += new System.EventHandler(this.textBoxTrim_Leave);
             // 
@@ -102,9 +104,9 @@
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.textBox3);
             this.groupBox1.Controls.Add(this.checkBox1);
-            this.groupBox1.Location = new System.Drawing.Point(14, 93);
+            this.groupBox1.Location = new System.Drawing.Point(12, 120);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(254, 52);
+            this.groupBox1.Size = new System.Drawing.Size(256, 52);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "                       ";
@@ -124,7 +126,7 @@
             this.textBox3.Location = new System.Drawing.Point(59, 22);
             this.textBox3.Name = "textBox3";
             this.textBox3.PasswordChar = '*';
-            this.textBox3.Size = new System.Drawing.Size(189, 21);
+            this.textBox3.Size = new System.Drawing.Size(191, 21);
             this.textBox3.TabIndex = 6;
             this.textBox3.Leave += new System.EventHandler(this.textBoxTrim_Leave);
             // 
@@ -135,21 +137,39 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(59, 12);
             this.label4.TabIndex = 8;
-            this.label4.Text = "Steam ID:";
+            this.label4.Text = "SteamID3:";
             // 
             // textBox4
             // 
-            this.textBox4.Location = new System.Drawing.Point(76, 66);
+            this.textBox4.Location = new System.Drawing.Point(77, 66);
             this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(192, 21);
+            this.textBox4.Size = new System.Drawing.Size(191, 21);
             this.textBox4.TabIndex = 7;
             this.textBox4.Leave += new System.EventHandler(this.textBoxInt_Leave);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(12, 96);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(95, 12);
+            this.label5.TabIndex = 10;
+            this.label5.Text = "Note(Optional):";
+            // 
+            // textBox5
+            // 
+            this.textBox5.Location = new System.Drawing.Point(112, 93);
+            this.textBox5.Name = "textBox5";
+            this.textBox5.Size = new System.Drawing.Size(156, 21);
+            this.textBox5.TabIndex = 9;
             // 
             // AddAccountForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(280, 186);
+            this.ClientSize = new System.Drawing.Size(280, 213);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.textBox5);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.textBox4);
             this.Controls.Add(this.groupBox1);
@@ -183,5 +203,7 @@
         private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox textBox4;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox textBox5;
     }
 }

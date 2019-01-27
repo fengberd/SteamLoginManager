@@ -23,6 +23,7 @@ namespace SteamLoginManager
                         checkBox1.Checked = account.SteamGuard;
                         textBox3.Text = account.SteamGuardSecret;
                         textBox4.Text = account.SteamId.ToString();
+                        textBox5.Text = account.Note;
                     }
                 }
             }
@@ -61,6 +62,7 @@ namespace SteamLoginManager
                         account.SteamGuard = checkBox1.Checked;
                         account.SteamGuardSecret = textBox3.Text;
                         account.SteamId = long.Parse(textBox4.Text);
+                        account.Note = textBox5.Text;
                     }
                 }
             }
@@ -72,7 +74,8 @@ namespace SteamLoginManager
                     Password = textBox2.Text,
                     SteamGuard = checkBox1.Checked,
                     SteamGuardSecret = textBox3.Text,
-                    SteamId = long.Parse(textBox4.Text)
+                    SteamId = long.Parse(textBox4.Text),
+                    Note = textBox5.Text
                 });
             }
             if(Utils.SaveAccounts())

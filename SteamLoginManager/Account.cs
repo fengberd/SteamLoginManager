@@ -4,7 +4,7 @@ namespace SteamLoginManager
 {
     public class Account
     {
-        public string Username, Password;
+        public string Username, Password, Note;
         public long SteamId;
 
         public bool SteamGuard = false;
