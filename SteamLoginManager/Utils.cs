@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Collections.Generic;
@@ -176,11 +177,34 @@ namespace SteamLoginManager
                     FileName = steam,
                     Arguments = "-login \"" + account.Username + "\" \"" + account.Password.Replace("\\","\\\\").Replace("\"","\\\"") + "\""
                 });
-                // TODO: Process SteamGuard Code Automaticlly
-                string steamGuard = account.GenerateSteamGuard();
-                if(steamGuard != null)
+
+                var code = account.GenerateSteamGuard();
+                if (code != null)
                 {
-                    MessageBox.Show("Your code is " + steamGuard,"Steam Guard",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                    int tries = 30;
+                    while (tries-- > 0)
+                    {
+                        Thread.Sleep(1000);
+                        NTAPI.EnumWindows((hwnd, lparam) =>
+                        {
+                            if (NTAPI.GetWindowText(hwnd).Contains("Steam Guard"))
+                            {
+                                tries = -1;
+                                if (NTAPI.SetForegroundWindow(hwnd) == 0)
+                                {
+                                    tries = 0;
+                                    return false;
+                                }
+                                NTAPI.SendString(code + "\n");
+                                return false;
+                            }
+                            return true;
+                        }, IntPtr.Zero);
+                    }
+                    if (tries > -2) // Not automatically filled
+                    {
+                        MessageBox.Show("Your code is " + code, "Steam Guard", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
                 }
             }
             catch(Exception e)
