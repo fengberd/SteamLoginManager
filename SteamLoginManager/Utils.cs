@@ -20,16 +20,16 @@ namespace SteamLoginManager
             try
             {
                 Accounts.Clear();
-                if(!File.Exists("accounts.json"))
+                if (!File.Exists("accounts.json"))
                 {
-                    File.WriteAllText("accounts.json","[]",Encoding.UTF8);
+                    File.WriteAllText("accounts.json", "[]", Encoding.UTF8);
                 }
-                Accounts.AddRange(JsonConvert.DeserializeObject<ICollection<Account>>(File.ReadAllText("accounts.json",Encoding.UTF8)));
+                Accounts.AddRange(JsonConvert.DeserializeObject<ICollection<Account>>(File.ReadAllText("accounts.json", Encoding.UTF8)));
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                if(MessageBox.Show("Failed to parse accounts.json,continue?\nContinue WILL CLEAR ALL OF YOUR ACCOUNTS DATA!\n\n" +
-                    "Exception Details:\n" + e.ToString(),"Warning",MessageBoxButtons.YesNo,MessageBoxIcon.Warning) != DialogResult.Yes)
+                if (MessageBox.Show("Failed to parse accounts.json,continue?\nContinue WILL CLEAR ALL OF YOUR ACCOUNTS DATA!\n\n" +
+                    "Exception Details:\n" + e.ToString(), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                 {
                     Environment.Exit(0);
                 }
@@ -40,12 +40,12 @@ namespace SteamLoginManager
         {
             try
             {
-                File.WriteAllText("accounts.json",JsonConvert.SerializeObject(Accounts),Encoding.UTF8);
+                File.WriteAllText("accounts.json", JsonConvert.SerializeObject(Accounts), Encoding.UTF8);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                if(MessageBox.Show("Failed to save accounts.json,continue?\nContinue won't save the changes you made!\n\n" +
-                    "Exception Details:\n" + e.ToString(),"Warning",MessageBoxButtons.YesNo,MessageBoxIcon.Warning) != DialogResult.Yes)
+                if (MessageBox.Show("Failed to save accounts.json,continue?\nContinue won't save the changes you made!\n\n" +
+                    "Exception Details:\n" + e.ToString(), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                 {
                     return false;
                 }
@@ -56,9 +56,9 @@ namespace SteamLoginManager
         public static int KillSteam()
         {
             int count = 0;
-            foreach(var process in Process.GetProcesses())
+            foreach (var process in Process.GetProcesses())
             {
-                if(process.ProcessName == "Steam" || process.ProcessName == "steamwebhelper" || process.ProcessName == "SteamService")
+                if (process.ProcessName == "Steam" || process.ProcessName == "steamwebhelper" || process.ProcessName == "SteamService")
                 {
                     try
                     {
@@ -73,28 +73,28 @@ namespace SteamLoginManager
 
         public static bool ProcessUserData(long steamId)
         {
-            var userdata = Path.Combine(SteamPath,"userdata");
-            var userdata_backup = Path.Combine(SteamPath,"userdata_backup");
-            if(!Directory.Exists(userdata_backup))
+            var userdata = Path.Combine(SteamPath, "userdata");
+            var userdata_backup = Path.Combine(SteamPath, "userdata_backup");
+            if (!Directory.Exists(userdata_backup))
             {
                 Directory.CreateDirectory(userdata_backup);
             }
-            foreach(var dir in Directory.EnumerateDirectories(userdata))
+            foreach (var dir in Directory.EnumerateDirectories(userdata))
             {
                 var name = Path.GetFileName(dir);
-                if(name != steamId.ToString())
+                if (name != steamId.ToString())
                 {
-                    var target = Path.Combine(userdata_backup,name);
-                    if(Directory.Exists(target))
+                    var target = Path.Combine(userdata_backup, name);
+                    if (Directory.Exists(target))
                     {
                         try
                         {
-                            Directory.Delete(target,true);
+                            Directory.Delete(target, true);
                         }
-                        catch(Exception e)
+                        catch (Exception e)
                         {
-                            if(MessageBox.Show("Failed to delete '" + target + "',continue?\n\n" +
-                                "Exception Details:\n" + e,"Error",MessageBoxButtons.YesNo,MessageBoxIcon.Stop) != DialogResult.Yes)
+                            if (MessageBox.Show("Failed to delete '" + target + "',continue?\n\n" +
+                                "Exception Details:\n" + e, "Error", MessageBoxButtons.YesNo, MessageBoxIcon.Stop) != DialogResult.Yes)
                             {
                                 return false;
                             }
@@ -102,35 +102,35 @@ namespace SteamLoginManager
                     }
                     try
                     {
-                        Directory.Move(dir,target);
+                        Directory.Move(dir, target);
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
-                        if(MessageBox.Show("Failed to move '" + dir + "' to '" + target + "',continue?\n\n" +
-                            "Exception Details:\n" + e,"Error",MessageBoxButtons.YesNo,MessageBoxIcon.Stop) != DialogResult.Yes)
+                        if (MessageBox.Show("Failed to move '" + dir + "' to '" + target + "',continue?\n\n" +
+                            "Exception Details:\n" + e, "Error", MessageBoxButtons.YesNo, MessageBoxIcon.Stop) != DialogResult.Yes)
                         {
                             return false;
                         }
                     }
                 }
             }
-            var fromBackup = Path.Combine(userdata_backup,steamId.ToString());
-            if(Directory.Exists(fromBackup))
+            var fromBackup = Path.Combine(userdata_backup, steamId.ToString());
+            if (Directory.Exists(fromBackup))
             {
-                var moveTarget = Path.Combine(userdata,steamId.ToString());
-                if(Directory.Exists(moveTarget))
+                var moveTarget = Path.Combine(userdata, steamId.ToString());
+                if (Directory.Exists(moveTarget))
                 {
-                    switch(MessageBox.Show("Target folder userdata/" + steamId + " already exists,override it with the folder in userdata_backup?\n\n" +
+                    switch (MessageBox.Show("Target folder userdata/" + steamId + " already exists,override it with the folder in userdata_backup?\n\n" +
                         "Yes = Delete userdata and use userdata_backup instead\n" +
                         "No = Delete userdata_backup and continue\n" +
-                        "Cancel = Do nothing and stop.","Warning",MessageBoxButtons.YesNoCancel,MessageBoxIcon.Stop))
+                        "Cancel = Do nothing and stop.", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Stop))
                     {
                     case DialogResult.Yes:
-                        Directory.Delete(moveTarget,true);
-                        Directory.Move(fromBackup,moveTarget);
+                        Directory.Delete(moveTarget, true);
+                        Directory.Move(fromBackup, moveTarget);
                         break;
                     case DialogResult.No:
-                        Directory.Delete(fromBackup,true);
+                        Directory.Delete(fromBackup, true);
                         break;
                     default:
                         return false;
@@ -138,7 +138,7 @@ namespace SteamLoginManager
                 }
                 else
                 {
-                    Directory.Move(fromBackup,moveTarget);
+                    Directory.Move(fromBackup, moveTarget);
                 }
             }
             return true;
@@ -146,15 +146,15 @@ namespace SteamLoginManager
 
         public static bool DeleteLoginUsers()
         {
-            var file = Path.Combine(SteamPath,"config","loginusers.vdf");
+            var file = Path.Combine(SteamPath, "config", "loginusers.vdf");
             try
             {
                 File.Delete(file);
             }
             catch { }
-            if(File.Exists(file))
+            if (File.Exists(file))
             {
-                if(MessageBox.Show("Failed to delete loginusers.vdf,continue?","Error",MessageBoxButtons.YesNo,MessageBoxIcon.Error) != DialogResult.Yes)
+                if (MessageBox.Show("Failed to delete loginusers.vdf,continue?", "Error", MessageBoxButtons.YesNo, MessageBoxIcon.Error) != DialogResult.Yes)
                 {
                     return false;
                 }
@@ -164,10 +164,10 @@ namespace SteamLoginManager
 
         public static bool LoginAccount(Account account)
         {
-            var steam = Path.Combine(SteamPath,"Steam.exe");
-            if(!File.Exists(steam))
+            var steam = Path.Combine(SteamPath, "Steam.exe");
+            if (!File.Exists(steam))
             {
-                MessageBox.Show("Can't find Steam.exe in steam path.","Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                MessageBox.Show("Can't find Steam.exe in steam path.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             try
@@ -175,7 +175,7 @@ namespace SteamLoginManager
                 Process.Start(new ProcessStartInfo()
                 {
                     FileName = steam,
-                    Arguments = "-login \"" + account.Username + "\" \"" + account.Password.Replace("\\","\\\\").Replace("\"","\\\"") + "\""
+                    Arguments = "-login \"" + account.Username + "\" \"" + account.Password.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\""
                 });
 
                 var code = account.GenerateSteamGuard();
@@ -207,10 +207,10 @@ namespace SteamLoginManager
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 MessageBox.Show("Failed to start steam.\n\n" +
-                    "Exception Details:\n" + e,"Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                    "Exception Details:\n" + e, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             return true;

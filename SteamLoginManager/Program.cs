@@ -24,17 +24,17 @@ namespace SteamLoginManager
                 return;
             }
             catch { }
-            waitHandle = new EventWaitHandle(false,EventResetMode.AutoReset,GUID);
+            waitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, GUID);
             var queryThread = new Thread(new ThreadStart(() =>
             {
                 try
                 {
-                    while(true)
+                    while (true)
                     {
-                        if(waitHandle.WaitOne())
+                        if (waitHandle.WaitOne())
                         {
                             var main = Application.OpenForms["MainForm"];
-                            if(main != null)
+                            if (main != null)
                             {
                                 main.Invoke(new Action(() =>
                                 {
@@ -45,7 +45,7 @@ namespace SteamLoginManager
                         }
                     }
                 }
-                catch(ThreadAbortException) { }
+                catch (ThreadAbortException) { }
             }))
             {
                 IsBackground = true
