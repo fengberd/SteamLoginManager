@@ -63,8 +63,8 @@ namespace SteamLoginManager
             HEIGHT_ORIGINAL = HEIGHT_EXPANDED - groupBox2.Height - 12;
             Height = HEIGHT_ORIGINAL;
 
-            Utils.SteamPath = config["SteamPath", Utils.SteamPath];
-            textBox1.Text = Utils.SteamPath;
+            textBox1.Text = Utils.SteamPath = config["SteamPath", Utils.SteamPath];
+            textBox2.Text = Utils.SteamTitle = config["SteamTitle", Utils.SteamTitle];
             checkBox1.Checked = config.GetBool("ProcessUserData", false);
             checkBox2.Checked = config.GetBool("DeleteLoginUser", false);
             checkBox3.Checked = config.GetBool("MinimizeAfterLogin", false);
@@ -135,6 +135,12 @@ namespace SteamLoginManager
                     "Exception Details:\n" + ex, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             textBox1.Text = Utils.SteamPath;
+        }
+
+        private void textBox2_Leave(object sender, EventArgs e)
+        {
+            config["SteamTitle"] = Utils.SteamTitle = textBox2.Text;
+            config.Save();
         }
 
         #region listView1 Events

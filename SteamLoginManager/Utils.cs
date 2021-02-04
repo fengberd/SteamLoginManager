@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Drawing;
 using System.Threading;
 using System.Diagnostics;
 using System.Windows.Forms;
@@ -12,7 +13,7 @@ namespace SteamLoginManager
 {
     public static class Utils
     {
-        public static string SteamPath = @"C:\Program Files (x86)\Steam\";
+        public static string SteamPath = @"C:\Program Files (x86)\Steam\", SteamTitle = "Steam Guard - Computer Authorization Required";
         public static List<Account> Accounts = new List<Account>();
 
         public static void InitAccounts()
@@ -53,22 +54,22 @@ namespace SteamLoginManager
             return true;
         }
 
-        public static int KillSteam()
+        public static void KillProcessByName(string name)
         {
-            int count = 0;
-            foreach (var process in Process.GetProcesses())
+            foreach (var p in Process.GetProcessesByName(name))
             {
-                if (process.ProcessName == "Steam" || process.ProcessName == "steamwebhelper" || process.ProcessName == "SteamService")
+                try
                 {
-                    try
-                    {
-                        process.Kill();
-                        count++;
-                    }
-                    catch { }
+                    p.Kill();
                 }
+                catch { }
             }
-            return count;
+        }
+
+        public static void KillSteam()
+        {
+            KillProcessByName("SteamService");
+            KillProcessByName("Steam");
         }
 
         public static bool ProcessUserData(long steamId)
@@ -185,21 +186,14 @@ namespace SteamLoginManager
                     while (tries-- > 0)
                     {
                         Thread.Sleep(1000);
-                        NTAPI.EnumWindows((hwnd, lparam) =>
+                        var hwnd = NTAPI.FindWindowEx(IntPtr.Zero, IntPtr.Zero, "vguiPopupWindow", SteamTitle);
+                        if (hwnd != IntPtr.Zero)
                         {
-                            if (NTAPI.GetWindowText(hwnd).Contains("Steam Guard"))
-                            {
-                                tries = -1;
-                                if (NTAPI.SetForegroundWindow(hwnd) == 0)
-                                {
-                                    tries = 0;
-                                    return false;
-                                }
-                                NTAPI.SendString(code + "\n");
-                                return false;
-                            }
-                            return true;
-                        }, IntPtr.Zero);
+                            tries = -1;
+                            NTAPI.SetForegroundWindow(hwnd);
+                            NTAPI.LeftClick(hwnd, new Point(190, 90));
+                            NTAPI.SendString(code + "\n");
+                        }
                     }
                     if (tries > -2) // Not automatically filled
                     {

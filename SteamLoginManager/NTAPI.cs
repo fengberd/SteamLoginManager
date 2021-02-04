@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text;
+using System.Drawing;
+using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -29,6 +31,9 @@ namespace SteamLoginManager
         public static extern int SetForegroundWindow(IntPtr point);
 
         public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr FindWindowEx(IntPtr parentHandle, IntPtr childAfter, string className, string windowTitle);
 
         [DllImport("user32.dll")]
         public static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
@@ -80,8 +85,39 @@ namespace SteamLoginManager
             public IntPtr ExtraInfo;
         }
 
+        [DllImport("user32.dll")]
+        public static extern bool ClientToScreen(IntPtr hWnd, ref Point lpPoint);
+
         [DllImport("user32.dll", SetLastError = true)]
         public static extern uint SendInput(uint numberOfInputs, INPUT[] inputs, int sizeOfInputStructure);
+
+        public static void LeftClick(IntPtr handle, Point relative)
+        {
+            ClientToScreen(handle, ref relative);
+
+            var oldPos = Cursor.Position;
+            Cursor.Position = relative;
+
+            var inputMouseDown = new INPUT
+            {
+                Type = 0
+            };
+            inputMouseDown.Data.Mouse.Flags = 0x0002;
+
+            var inputMouseUp = new INPUT
+            {
+                Type = 0
+            };
+            inputMouseUp.Data.Mouse.Flags = 0x0004;
+
+            SendInput(2, new INPUT[]
+            {
+                inputMouseDown,
+                inputMouseUp
+            }, Marshal.SizeOf(typeof(INPUT)));
+
+            Cursor.Position = oldPos;
+        }
 
         public static void SendString(string data)
         {
