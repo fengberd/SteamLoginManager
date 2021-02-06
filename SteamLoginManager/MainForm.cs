@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 
 using BakaServer;
@@ -12,15 +13,18 @@ namespace SteamLoginManager
 
         private int HEIGHT_ORIGINAL, HEIGHT_EXPANDED;
 
+        private Thread loginThread = null;
+
         public void RefreshAccounts()
         {
             listView1.BeginUpdate();
             listView1.Items.Clear();
-            foreach (var account in Utils.Accounts)
+            foreach (var kv in Utils.Accounts)
             {
+                var account = kv.Value;
                 listView1.Items.Add(new ListViewItem(new string[]
                 {
-                    account.Username,
+                    kv.Key,
                     account.Note,
                     account.SteamId.ToString(),
                     account.SteamGuard?"√":""
@@ -36,24 +40,77 @@ namespace SteamLoginManager
             {
                 return;
             }
-            Utils.KillSteam();
-            foreach (var account in Utils.Accounts)
+            panel1.Visible = true;
+            loginThread = new Thread(new ThreadStart(() =>
             {
-                if (account.Username == listView1.SelectedItems[0].Text)
+                try
                 {
-                    if (!checkBox1.Checked || Utils.ProcessUserData(account.SteamId))
+                    var account = Utils.Accounts[listView1.SelectedItems[0].Text];
+
+                    LoginCallback("Killing Steam");
+                    Utils.KillSteam();
+
+                    if (checkBox1.Checked)
                     {
-                        if (!checkBox2.Checked || Utils.DeleteLoginUsers())
+                        LoginCallback("Processing user data");
+                        if (!Utils.ProcessUserData(account.SteamId))
                         {
-                            if (Utils.LoginAccount(account) && checkBox3.Checked)
-                            {
-                                WindowState = FormWindowState.Minimized;
-                            }
+                            LoginCallback(null);
+                            return;
                         }
                     }
-                    return;
+
+                    if (checkBox2.Checked)
+                    {
+                        LoginCallback("Deleting login users");
+                        if (!Utils.DeleteLoginUsers())
+                        {
+                            LoginCallback(null);
+                            return;
+                        }
+                    }
+
+                    LoginCallback("Logging in");
+                    Utils.LoginAccount(account, LoginCallback);
+
+                    LoginCallback("");
                 }
-            }
+                catch (ThreadAbortException)
+                {
+                    LoginCallback(null);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }))
+            {
+                IsBackground = true
+            };
+            loginThread.Start();
+        }
+
+        public void LoginCallback(string state)
+        {
+            Invoke(new Action(() =>
+            {
+                if (state == null)
+                {
+                    panel1.Visible = false;
+                }
+                else if (state == "")
+                {
+                    panel1.Visible = false;
+                    if (checkBox3.Checked)
+                    {
+                        WindowState = FormWindowState.Minimized;
+                    }
+                }
+                else
+                {
+                    label_loading.Text = state;
+                }
+            }));
         }
 
         public MainForm()
@@ -62,6 +119,16 @@ namespace SteamLoginManager
             HEIGHT_EXPANDED = Height;
             HEIGHT_ORIGINAL = HEIGHT_EXPANDED - groupBox2.Height - 12;
             Height = HEIGHT_ORIGINAL;
+
+            panel1.Dock = DockStyle.Fill;
+
+            label_loading.Height = (panel1.Height - label_loading.Height - progressBar1.Height) / 2 - 3;
+            progressBar1.Top = label_loading.Bottom + 12;
+            progressBar1.Left = (panel1.Width - progressBar1.Width) / 2;
+            button4.Top = progressBar1.Bottom + 12;
+            button4.Left = (panel1.Width - button4.Width) / 2;
+
+            panel1.Visible = false;
 
             textBox1.Text = Utils.SteamPath = config["SteamPath", Utils.SteamPath];
             textBox2.Text = Utils.SteamTitle = config["SteamTitle", Utils.SteamTitle];
@@ -95,6 +162,15 @@ namespace SteamLoginManager
             {
                 Height = HEIGHT_EXPANDED;
                 button2.Text = "▲";
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            if (loginThread != null && loginThread.IsAlive)
+            {
+                loginThread.Abort();
+                loginThread = null;
             }
         }
 
@@ -152,33 +228,21 @@ namespace SteamLoginManager
             accountToolStripMenuItem_SteamGuardCode.Visible = listView1.SelectedItems.Count == 1 && listView1.SelectedItems[0].SubItems[3].Text != "";
         }
 
-        private void listView1_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            LoginCurrentSelected();
-        }
+        private void listView1_MouseDoubleClick(object sender, MouseEventArgs e) => LoginCurrentSelected();
 
-        private void accountToolStripMenuItem_Login_Click(object sender, EventArgs e)
-        {
-            LoginCurrentSelected();
-        }
+        private void accountToolStripMenuItem_Login_Click(object sender, EventArgs e) => LoginCurrentSelected();
 
         private void accountToolStripMenuItem_SteamGuardCode_Click(object sender, EventArgs e)
         {
-            foreach (var account in Utils.Accounts)
+            var account = Utils.Accounts[listView1.SelectedItems[0].Text];
+            var code = account.GenerateSteamGuard();
+            if (code == null)
             {
-                if (account.Username == listView1.SelectedItems[0].Text)
-                {
-                    string code = account.GenerateSteamGuard();
-                    if (code == null)
-                    {
-                        MessageBox.Show("Failed to generate code,please make sure you've entered the correct SharedSecret!", "Steam Guard", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Your code is " + code, "Steam Guard", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                    return;
-                }
+                MessageBox.Show("Failed to generate code,please make sure you've entered the correct SharedSecret!", "Steam Guard", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                MessageBox.Show("Account: " + account.Username + "\nCode: " + code, "Steam Guard", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -194,19 +258,7 @@ namespace SteamLoginManager
         {
             foreach (ListViewItem item in listView1.SelectedItems)
             {
-                Account remove = null;
-                foreach (var account in Utils.Accounts)
-                {
-                    if (account.Username == item.Text)
-                    {
-                        remove = account;
-                        break;
-                    }
-                }
-                if (remove != null)
-                {
-                    Utils.Accounts.Remove(remove);
-                }
+                Utils.Accounts.Remove(item.Text);
             }
             if (Utils.SaveAccounts())
             {

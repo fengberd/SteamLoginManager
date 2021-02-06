@@ -53,6 +53,9 @@
             System.Windows.Forms.ListViewItem listViewItem45 = new System.Windows.Forms.ListViewItem("");
             System.Windows.Forms.ListViewItem listViewItem46 = new System.Windows.Forms.ListViewItem("");
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.label_loading = new System.Windows.Forms.Label();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.listView1 = new System.Windows.Forms.ListView();
             this.columnHeader_Username = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader_Note = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -69,15 +72,17 @@
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.checkBox3 = new System.Windows.Forms.CheckBox();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.button3 = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
+            this.button4 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.contextMenuStrip_Account.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -91,6 +96,35 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Accounts";
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.button4);
+            this.panel1.Controls.Add(this.label_loading);
+            this.panel1.Controls.Add(this.progressBar1);
+            this.panel1.Location = new System.Drawing.Point(3, 211);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(412, 115);
+            this.panel1.TabIndex = 1;
+            // 
+            // label_loading
+            // 
+            this.label_loading.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label_loading.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label_loading.Location = new System.Drawing.Point(0, 0);
+            this.label_loading.Name = "label_loading";
+            this.label_loading.Size = new System.Drawing.Size(412, 20);
+            this.label_loading.TabIndex = 1;
+            this.label_loading.Text = "Loading Hint";
+            this.label_loading.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(7, 44);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(400, 23);
+            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            this.progressBar1.TabIndex = 0;
             // 
             // listView1
             // 
@@ -258,6 +292,23 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Settings";
             // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(119, 47);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(346, 21);
+            this.textBox2.TabIndex = 9;
+            this.textBox2.Leave += new System.EventHandler(this.textBox2_Leave);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 50);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(107, 12);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "SteamGuard Title:";
+            // 
             // checkBox3
             // 
             this.checkBox3.AutoSize = true;
@@ -318,28 +369,22 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Steam Path:";
             // 
-            // textBox2
+            // button4
             // 
-            this.textBox2.Location = new System.Drawing.Point(119, 47);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(346, 21);
-            this.textBox2.TabIndex = 9;
-            this.textBox2.Leave += new System.EventHandler(this.textBox2_Leave);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 50);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(107, 12);
-            this.label2.TabIndex = 8;
-            this.label2.Text = "SteamGuard Title:";
+            this.button4.Location = new System.Drawing.Point(157, 74);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(99, 23);
+            this.button4.TabIndex = 2;
+            this.button4.Text = "Cancel";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(531, 451);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
@@ -350,6 +395,7 @@
             this.Text = "Steam Login Manager";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.groupBox1.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
             this.contextMenuStrip_Account.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
@@ -384,6 +430,10 @@
         private System.Windows.Forms.CheckBox checkBox3;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Label label_loading;
+        private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.Button button4;
     }
 }
 

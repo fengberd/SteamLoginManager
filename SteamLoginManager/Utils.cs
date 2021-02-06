@@ -14,7 +14,7 @@ namespace SteamLoginManager
     public static class Utils
     {
         public static string SteamPath = @"C:\Program Files (x86)\Steam\", SteamTitle = "Steam Guard - Computer Authorization Required";
-        public static List<Account> Accounts = new List<Account>();
+        public static Dictionary<string, Account> Accounts = new Dictionary<string, Account>();
 
         public static void InitAccounts()
         {
@@ -25,7 +25,10 @@ namespace SteamLoginManager
                 {
                     File.WriteAllText("accounts.json", "[]", Encoding.UTF8);
                 }
-                Accounts.AddRange(JsonConvert.DeserializeObject<ICollection<Account>>(File.ReadAllText("accounts.json", Encoding.UTF8)));
+                foreach (var account in JsonConvert.DeserializeObject<ICollection<Account>>(File.ReadAllText("accounts.json", Encoding.UTF8)))
+                {
+                    Accounts.Add(account.Username, account);
+                }
             }
             catch (Exception e)
             {
@@ -41,7 +44,7 @@ namespace SteamLoginManager
         {
             try
             {
-                File.WriteAllText("accounts.json", JsonConvert.SerializeObject(Accounts), Encoding.UTF8);
+                File.WriteAllText("accounts.json", JsonConvert.SerializeObject(Accounts.Values), Encoding.UTF8);
             }
             catch (Exception e)
             {
@@ -163,7 +166,7 @@ namespace SteamLoginManager
             return true;
         }
 
-        public static bool LoginAccount(Account account)
+        public static bool LoginAccount(Account account, Action<string> callback)
         {
             var steam = Path.Combine(SteamPath, "Steam.exe");
             if (!File.Exists(steam))
@@ -171,41 +174,30 @@ namespace SteamLoginManager
                 MessageBox.Show("Can't find Steam.exe in steam path.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-            try
-            {
-                Process.Start(new ProcessStartInfo()
-                {
-                    FileName = steam,
-                    Arguments = "-login \"" + account.Username + "\" \"" + account.Password.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\""
-                });
 
-                var code = account.GenerateSteamGuard();
-                if (code != null)
+            Process.Start(new ProcessStartInfo()
+            {
+                FileName = steam,
+                Arguments = "-login \"" + account.Username + "\" \"" + account.Password.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\""
+            });
+
+            var code = account.GenerateSteamGuard();
+            if (code != null)
+            {
+                while (true)
                 {
-                    int tries = 30;
-                    while (tries-- > 0)
+                    callback("Waiting to fill SteamGuard [" + code + "]");
+                    Thread.Sleep(1000);
+                    var hwnd = NTAPI.FindWindowEx(IntPtr.Zero, IntPtr.Zero, "vguiPopupWindow", SteamTitle);
+                    if (hwnd != IntPtr.Zero)
                     {
-                        Thread.Sleep(1000);
-                        var hwnd = NTAPI.FindWindowEx(IntPtr.Zero, IntPtr.Zero, "vguiPopupWindow", SteamTitle);
-                        if (hwnd != IntPtr.Zero)
-                        {
-                            tries = -1;
-                            NTAPI.SetForegroundWindow(hwnd);
-                            NTAPI.LeftClick(hwnd, new Point(190, 90));
-                            NTAPI.SendString(code + "\n");
-                        }
-                    }
-                    if (tries > -2) // Not automatically filled
-                    {
-                        MessageBox.Show("Your code is " + code, "Steam Guard", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        callback("Sending code...");
+                        NTAPI.SetForegroundWindow(hwnd);
+                        NTAPI.LeftClick(hwnd, new Point(190, 90));
+                        NTAPI.SendString(code + "\n");
+                        break;
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show("Failed to start steam.\n\n" +
-                    "Exception Details:\n" + e, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
             }
             return true;
         }
