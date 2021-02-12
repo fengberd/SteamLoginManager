@@ -30,6 +30,10 @@ namespace SteamLoginManager
                     account.SteamGuard?"√":""
                 }));
             }
+            if (listView1.Items.Count > 0)
+            {
+                listView1.Items[0].Selected = true;
+            }
             listView1.EndUpdate();
             listView1_ItemSelectionChanged();
         }
@@ -173,6 +177,8 @@ namespace SteamLoginManager
                 loginThread = null;
             }
         }
+
+        private void button5_Click(object sender, EventArgs e) => LoginCurrentSelected();
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
